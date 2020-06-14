@@ -451,8 +451,10 @@ sys_lseek(void) {
 
   if (argfd(0, 0, &f) < 0 || 
       argint(2, &offset) < 0 || 
-      argint(1, (int *)&whence) < 0)
+      argint(1, (int *)&whence) < 0) {
+    cprintf("args\n");
     return -1;
+  }
 
   
   if (f->type != FD_INODE) 
@@ -476,6 +478,7 @@ sys_lseek(void) {
       offset_temp = filesize;
       break;
     default:
+      cprintf("default\n");
       return -1;
       break;
   }
@@ -483,8 +486,10 @@ sys_lseek(void) {
   // xv6 read and write do not account for 'holes'
   // so better not allow exceeding the bounds
   if (((offset_temp + offset) < 0 ) || 
-      ((offset_temp + offset) >= filesize))
+      ((offset_temp + offset) > filesize)) {
+    cprintf("offset\n");
     return -1;
+  }
 
   f->off = offset_temp + offset;
 
