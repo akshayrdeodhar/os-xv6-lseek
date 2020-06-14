@@ -8,14 +8,36 @@
 #include "traps.h"
 #include "memlayout.h"
 
+unsigned long randstate = 1;
+unsigned int
+rand()
+{
+  randstate = randstate * 1664525 + 1013904223;
+  return randstate;
+}
+
+void 
+durstenfeld_shuffle(int *arr, int n) {
+  int end = n - 1;
+  int candidate;
+  int temp;
+  while(end > 0) {
+    candidate = rand() % n;
+    temp = arr[end];
+    arr[end] = arr[candidate];
+    arr[candidate] = temp;
+    end -= 1;
+  }
+}
+
+
 int
 main(int argc, char *argv[]) {
-
 
   int fp, fo;
   int i, n;
   int chunk_size;
-  int random_order[10] = {9, 8, 7, 6, 5, 4, 3, 2, 1, 0}; // "A 'random' order
+  int random_order[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}; 
   int bytes_per_section[10] = {0,};
   int prefix_sum[10] = {10, };
   char *buffer = 0;
@@ -33,6 +55,9 @@ main(int argc, char *argv[]) {
     printf(1, "unable to open output file\n");
     exit();
   }
+
+  // produce random ordering
+  durstenfeld_shuffle(random_order, 10);
 
   n = lseek(fp, SEEK_END, 0);
   lseek(fp, SEEK_SET, 0);
@@ -63,3 +88,5 @@ main(int argc, char *argv[]) {
   close(fo);
   exit();
 }
+
+
